@@ -20,8 +20,11 @@ class CreateTrackingEventsTable extends Migration
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
 
             $table->enum('status', [
+                'created',
+                'booked',
                 'manifest_created',
                 'package_received',
+                'picked_up',
                 'in_transit',
                 'arrived_at_facility',
                 'departed_from_facility',
@@ -29,11 +32,17 @@ class CreateTrackingEventsTable extends Migration
                 'delivery_attempted',
                 'delivered',
                 'exception',
-                'returned'
+                'returned',
+                'cancelled'
             ])->index();
 
             $table->string('event_title');
             $table->text('description')->nullable();
+
+            // Geographic coordinates of the event checkpoint (for Leaflet.js map)
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
+
             $table->timestamp('occurred_at')->index();
             $table->timestamps();
 

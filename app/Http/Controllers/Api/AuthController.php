@@ -10,9 +10,6 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    /**
-     * User registration
-     */
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -44,28 +41,26 @@ class AuthController extends Controller
         ], 201);
     }
 
-    /**
-     * User login
-     */
     public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|string',
         ]);
 
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials do not match our records.'],
-            ]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The provided credentials do not match our records.',
+            ], 401);
         }
 
         if (!$user->is_active) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Your account is deactivated. Please contact support.',
+                'message' => 'Your account has been deactivated. Please contact administrator.',
             ], 403);
         }
 
@@ -82,10 +77,7 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * User profile
-     */
-    public function me(Request $request)
+    public function user(Request $request)
     {
         return response()->json([
             'status' => 'success',
@@ -93,9 +85,6 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * User logout
-     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

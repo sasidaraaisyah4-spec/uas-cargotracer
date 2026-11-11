@@ -21,19 +21,31 @@ class Shipment extends Model
         'recipient_name',
         'recipient_phone',
         'recipient_address',
-        'status',
+        'cargo_type',
         'service_type',
         'total_weight',
+        'total_volume',
         'total_price',
         'payment_status',
         'notes',
+        'status',
+        'expected_departure_at',
+        'expected_arrival_at',
         'estimated_delivery_at',
         'delivered_at',
+        'is_delayed',
+        'delay_hours',
+        'delay_severity',
     ];
 
     protected $casts = [
         'total_weight' => 'decimal:2',
+        'total_volume' => 'decimal:3',
         'total_price' => 'decimal:2',
+        'delay_hours' => 'decimal:2',
+        'is_delayed' => 'boolean',
+        'expected_departure_at' => 'datetime',
+        'expected_arrival_at' => 'datetime',
         'estimated_delivery_at' => 'datetime',
         'delivered_at' => 'datetime',
         'created_at' => 'datetime',
@@ -41,7 +53,19 @@ class Shipment extends Model
     ];
 
     /**
-     * User who created or owns the shipment.
+     * Scope to filter shipments visible to a specific user based on role
+     */
+    public function scopeForUser($query, User $user)
+    {
+        if ($user->role === 'customer') {
+            return $query->where('user_id', $user->id);
+        }
+
+        return $query;
+    }
+
+    /**
+     * User who owns the shipment
      */
     public function user()
     {
@@ -49,7 +73,7 @@ class Shipment extends Model
     }
 
     /**
-     * Assigned carrier.
+     * Assigned carrier
      */
     public function carrier()
     {
@@ -57,7 +81,7 @@ class Shipment extends Model
     }
 
     /**
-     * Origin location.
+     * Origin location
      */
     public function originLocation()
     {
@@ -65,7 +89,7 @@ class Shipment extends Model
     }
 
     /**
-     * Destination location.
+     * Destination location
      */
     public function destinationLocation()
     {
@@ -73,7 +97,7 @@ class Shipment extends Model
     }
 
     /**
-     * Items included in this shipment.
+     * Items included in this shipment
      */
     public function items()
     {
@@ -81,7 +105,7 @@ class Shipment extends Model
     }
 
     /**
-     * Tracking timeline events for this shipment.
+     * Chronological tracking events
      */
     public function trackingEvents()
     {
@@ -89,7 +113,15 @@ class Shipment extends Model
     }
 
     /**
-     * Exceptions reported for this shipment.
+     * Latest tracking event
+     */
+    public function latestTrackingEvent()
+    {
+        return $this->hasOne(TrackingEvent::class, 'shipment_id')->latestOfMany('occurred_at');
+    }
+
+    /**
+     * Exceptions reported on this shipment
      */
     public function exceptions()
     {
@@ -97,7 +129,23 @@ class Shipment extends Model
     }
 
     /**
-     * Polymorphic audit logs for this shipment.
+     * Active/open exceptions
+     */
+    public function openExceptions()
+    {
+        return $this->hasMany(ShipmentException::class, 'shipment_id')->where('status', '!=', 'resolved');
+    }
+
+    /**
+     * Notifications linked to this shipment
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'shipment_id');
+    }
+
+    /**
+     * Polymorphic audit logs
      */
     public function auditLogs()
     {

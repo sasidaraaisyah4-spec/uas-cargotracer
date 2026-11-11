@@ -20,14 +20,17 @@ class CreateShipmentExceptionsTable extends Migration
             $table->foreignId('reported_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('resolved_by')->nullable()->constrained('users')->nullOnDelete();
 
+            // UAS Official Exception Types
             $table->enum('exception_type', [
-                'delay',
-                'weather_disruption',
+                'customs_hold',
+                'weather_delay',
+                'port_congestion',
                 'damaged',
-                'lost',
+                'misrouted',
+                'documentation_issue',
+                'delay',
                 'failed_attempt',
                 'incorrect_address',
-                'customs_hold',
                 'other'
             ])->index();
 
@@ -36,10 +39,13 @@ class CreateShipmentExceptionsTable extends Migration
             $table->text('resolution_notes')->nullable();
 
             $table->enum('status', ['open', 'investigating', 'resolved', 'closed'])->default('open')->index();
+
+            $table->timestamp('detected_at')->nullable();
             $table->timestamp('resolved_at')->nullable();
             $table->timestamps();
 
             $table->index(['shipment_id', 'status']);
+            $table->index(['exception_type', 'status']);
         });
     }
 

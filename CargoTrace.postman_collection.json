@@ -1,0 +1,203 @@
+{
+  "info": {
+    "name": "CargoTrace REST API - UAS Portfolio",
+    "description": "Comprehensive REST API Collection for CargoTrace: Global Shipment Visibility & Tracking Platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "auth_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Global Freight Importer\",\n  \"email\": \"importer@demo.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"phone\": \"+628123456789\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Login (Admin / Staff / Customer)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@cargotrace.test\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Get Authenticated User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/user"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public Tracking",
+      "item": [
+        {
+          "name": "Track by Tracking Number",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/track/CT-20261107-JKTSBY001"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shipments Management",
+      "item": [
+        {
+          "name": "List Shipments (Paginated & Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/shipments?per_page=10&status=in_transit"
+          }
+        },
+        {
+          "name": "Create Shipment (with Items & Volume CBM)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/shipments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carrier_id\": 1,\n  \"origin_location_id\": 1,\n  \"destination_location_id\": 2,\n  \"sender_name\": \"PT Sumber Elektronik Mandiri\",\n  \"sender_phone\": \"+6281399887766\",\n  \"sender_address\": \"KBN Tanjung Priok, Jakarta\",\n  \"recipient_name\": \"CV Maju Lancar Surabaya\",\n  \"recipient_phone\": \"+6281822334455\",\n  \"recipient_address\": \"Jl. Basuki Rahmat No. 88, Surabaya\",\n  \"service_type\": \"cargo\",\n  \"cargo_type\": \"Electronics\",\n  \"items\": [\n    {\n      \"item_name\": \"Mechanical Keyboards\",\n      \"quantity\": 10,\n      \"weight\": 20.0,\n      \"length\": 45.0,\n      \"width\": 15.0,\n      \"height\": 5.0\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Get Shipment Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/shipments/1"
+          }
+        },
+        {
+          "name": "Update Shipment Status (State Machine)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/shipments/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"out_for_delivery\",\n  \"notes\": \"Courier dispatching to destination address\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tracking Events & Exceptions",
+      "item": [
+        {
+          "name": "Get Shipment Tracking Timeline",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/shipments/1/tracking"
+          }
+        },
+        {
+          "name": "Append Tracking Event (Chronological)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/shipments/1/tracking",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_transit\",\n  \"event_title\": \"Passing Java Sea Checkpoint\",\n  \"description\": \"Vessel cruising at 18 knots\",\n  \"latitude\": -6.182,\n  \"longitude\": 108.32\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Report Operational Exception",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/shipments/1/exceptions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exception_type\": \"weather_delay\",\n  \"severity\": \"high\",\n  \"reason\": \"High waves exceeding 3.5m in Java Sea corridor\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Update/Resolve Exception",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": "{{base_url}}/api/exceptions/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"resolved\",\n  \"resolution_notes\": \"Weather cleared, harbor master issued clearance to sail\",\n  \"resume_shipment_status\": \"in_transit\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
